@@ -1,27 +1,36 @@
 import React, { useState } from "react";
-import ItemForm from "./ItemForm";
 import Filter from "./Filter";
-import Item from "./Item";
+import Item from "./Item"; // Assuming this is your item component
+import ItemForm from "./ItemForm"; // Assuming the form is part of this component
 
 function ShoppingList({ items }) {
-  const [selectedCategory, setSelectedCategory] = useState("All");
+  const [searchText, setSearchText] = useState("");
+  const [filteredCategory, setFilteredCategory] = useState("All");
+  const [itemList, setItemList] = useState(items); // Manage the list of items
 
-  function handleCategoryChange(event) {
-    setSelectedCategory(event.target.value);
-  }
-
-  const itemsToDisplay = items.filter((item) => {
-    if (selectedCategory === "All") return true;
-
-    return item.category === selectedCategory;
+  // Filter items based on search text and category
+  const filteredItems = itemList.filter((item) => {
+    return (
+      (item.name.toLowerCase().includes(searchText.toLowerCase()) || searchText === "") &&
+      (filteredCategory === "All" || item.category === filteredCategory)
+    );
   });
 
+  // Function to handle adding new items to the list
+  function handleAddItem(newItem) {
+    setItemList([...itemList, newItem]); // Use spread operator to add new items
+  }
+
   return (
-    <div className="ShoppingList">
-      <ItemForm />
-      <Filter onCategoryChange={handleCategoryChange} />
+    <div>
+      <Filter
+        search={searchText}
+        onSearchChange={setSearchText} // Pass state updater function
+        onCategoryChange={(e) => setFilteredCategory(e.target.value)} // Handle category change
+      />
+      <ItemForm onItemFormSubmit={handleAddItem} /> {/* Pass callback to add items */}
       <ul className="Items">
-        {itemsToDisplay.map((item) => (
+        {filteredItems.map((item) => (
           <Item key={item.id} name={item.name} category={item.category} />
         ))}
       </ul>
